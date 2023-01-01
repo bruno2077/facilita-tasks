@@ -1,0 +1,87 @@
+*
+  	box-sizing: border-box	
+
+body, body > div
+	margin: 0
+	padding: 0	
+
+body > div
+	min-height: 100vh	
+
+	
+.btn
+	border: 0px
+	cursor: pointer
+	border-radius: 5px		
+	height: 55px		
+	font-size: 16px
+	font-weight: 700
+	line-height: 16.8px
+	color: #fff
+	&.green
+		background: #1AD18F
+		&:hover
+			background: hsl(158, 78%, 40%)
+	&.red
+		background: #FF4874
+		&:hover
+			background: hsl(346, 100%, 58%)				
+	&:disabled
+		background: #A6C1D2
+		pointer-events: none
+
+@font-face {
+	font-family: "Gilroy"
+	src: url("./font/gilroy-font/SVN-Gilroy Regular.ttf")
+	font-style: normal
+}
+@font-face {
+	font-family: "Gilroy"
+	src: url("./font/gilroy-font/SVN-Gilroy Italic.ttf")
+	font-style: italic	
+}
+@font-face {
+	font-family: "Gilroy"
+	src: url("./font/gilroy-font/SVN-Gilroy Thin.ttf")
+	font-weight: 100	
+}
+@font-face {
+	font-family: "Gilroy"
+	src: url("./font/gilroy-font/SVN-Gilroy Light.ttf")
+	font-weight: 300	
+}
+@font-face {
+	font-family: "Gilroy"
+	src: url("./font/gilroy-font/SVN-Gilroy Medium.ttf")
+	font-weight: 500	
+}
+@font-face {
+	font-family: "Gilroy"
+	src: url("./font/gilroy-font/SVN-Gilroy SemiBold.ttf")
+	font-weight: 600	
+}
+@font-face {
+	font-family: "Gilroy"
+	src: url("./font/gilroy-font/SVN-Gilroy Bold.ttf")
+	font-weight: 700
+}
+@font-face {
+	font-family: "Gilroy"
+	src: url("./font/gilroy-font/SVN-Gilroy Black.ttf")
+	font-weight: 900	
+}
+
+
+// @font-face {
+// 	font-family: "quicksand"
+// 	src: url("quicksand-bold-webfont.woff2") format("woff")
+// 	font-weight: bold
+// 	font-style: normal
+// }
+
+// @font-face {
+// 	font-family: "quicksand"
+// 	src: url("quicksand-italic-webfont.woff2") format("woff")
+// 	font-weight: normal
+// 	font-style: normal
+// }

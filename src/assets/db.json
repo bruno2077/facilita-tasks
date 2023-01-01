@@ -1,0 +1,53 @@
+[
+    {
+        "users":[
+            {
+                "id":1,
+                "avatar":"nggyu.png",
+                "username":"Never Gave You Up",
+                "whois":"Rickroll Developer",
+                "password":"12345",
+                "lastLogin":1672357862248,
+                "logged":true
+            },
+            {
+                "id":2,
+                "avatar":"default.png",
+                "username":"John Doe",
+                "whois":"Lorem Ipsum Developer",
+                "password":"12345",
+                "lastLogin":1672337800000,
+                "logged":true
+            }
+        ],
+        "notes":[
+            {
+                "id":1,
+                "userId":1,
+                "done":false,
+                "category":"Urgente",
+                "title":"Digitar o código a cada 108 minutos... para sempre.",
+                "description":"O não descumprimento pode levar a um evento de fim do mundo. Não se sabe quando isso começou ou quem começou.",
+                "updatedAt":1672357852248
+            },
+            {
+                "id":2,
+                "userId":1,
+                "done":true,
+                "category":"",
+                "title":"Foo Bar Baz",
+                "description":"Lorem Ipsum",
+                "updatedAt":1672357752248
+            },
+            {
+                "id":3,
+                "userId":1,
+                "done":true,
+                "category":"Importante",
+                "title":"WAKE UP",
+                "description":"Eu estou sonhando ou acordado? este é o sonho ou a realidade?",
+                "updatedAt":1672357772248
+            }
+        ]
+    }
+]
