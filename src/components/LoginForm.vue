@@ -48,7 +48,7 @@
                     if(!this.username) // Carrega usuário padrão
                         user = this.findUser(1)                        
                     else user = this.findUser()
-                    console.log('[LF] user ao login', user)
+                    
                     if(user){
                         user.logged = true
                         user.lastLogin = new Date().getTime() // atualiza o horário do último login

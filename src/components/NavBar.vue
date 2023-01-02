@@ -10,13 +10,27 @@
                     class="navLink" :class="url === link.url ? 'selected' : ''" 
                     :to="link.url" tag="li"
                 >
-                    <i :class="link.icon" @click="wat(link.url)"></i>
+                    <i :class="link.icon"></i>
                     <span>{{link.label}}</span>
                 </router-link>
             </ul>
+            
             <!-- show horizontal -->
-            <i v-else-if="links && links.length" class="fas fa-bars navMenu" :class="defineClass()"></i>
-            <!-- Menu float aqui -->
+            <div v-else-if="links && links.length" class="navDropdown" :class="openDropdown ? 'open' : ''" @click="openDropdown = !openDropdown">
+                <i class="fas fa-bars navMenu"></i>
+                
+                <div class="dropdown-content">
+                    <ul>
+                        <router-link v-for="(link, index) in links" :key="index"
+                            class="navLinkMobile" :class="url === link.url ? 'selected' : ''" 
+                            :to="link.url" tag="li"
+                        >
+                            <i :class="link.icon" @click="wat(link.url)"></i>
+                            <span>{{link.label}}</span>
+                        </router-link>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div>
             <span v-if="avatar" class="avatarContainer">
@@ -46,18 +60,15 @@
 
         data(){
             return {
-                avatarUrl: require(`../assets/img/avatar/${this.$store.state.user.avatar}`)
+                avatarUrl: require(`../assets/img/avatar/${this.$store.state.user.avatar}`),
+                openDropdown: false
             }
         },
 
         computed:{
             url(){
-                return this.$route.name
+                return this.$route.path
             }
-        },
-
-        mounted(){
-            console.log('rota: ', location.pathname)
         },
 
         methods: {
@@ -78,9 +89,6 @@
 
                 return classToReturn
             },
-            wat(url){
-                console.log("waaaaat: ", url,)
-            }
         }
     }
 </script>
@@ -206,6 +214,41 @@
             &.white
                 color: #2693FF
 
+    // DROPDOWN BTN
+    .navDropdown
+        i
+            cursor: pointer
+        &.open .dropdown-content 
+            display: block            
+        .dropdown-content 
+            display: none
+            position: absolute
+            z-index: 2
+            border-radius: 0px            
+            background-color: #fff
+            color: #222
+            width: 100%
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)
+            padding-top: 11px 
+            left: 0px
+            top: 60px
+            
+            ul 
+                list-style: none
+                padding: 0px
+                .navLinkMobile
+                    padding: 10px 0px 10px 40px
+                    display: flex
+                    align-items: center
+                    i
+                        font-size: 25px
+                        margin-right: 10px
+                    span
+                        font-size: 15px
+                    &:hover
+                        background-color: #2693FF
+                        color: #fff   
+                    
     @media only screen and (max-width:568px)
         .userInfo    
             display: none

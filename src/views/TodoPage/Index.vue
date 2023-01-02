@@ -50,7 +50,7 @@
 						url: '/app/config'
 					},
 				],
-				clientWidth: Number(document.documentElement.clientWidth)
+				clientWidth: Number(window.innerWidth )
 			}
 		},
 
@@ -59,7 +59,6 @@
 			if(!Object.keys(currentUser).length) // Se não tem usuário logado redir pra loginPage
 				this.$router.push('/')
 			else {
-				// console.log("[D index] loadUsers notes: ", JSON.parse(JSON.stringify(this.$store.state.users[0])))
 				this.loggedUser = true
 				window.addEventListener('resize', this.handleResize)
 			}
@@ -70,7 +69,7 @@
 
 		methods: {
 			handleResize() {
-				this.clientWidth = Number(document.documentElement.clientWidth)
+				this.clientWidth = Number(window.innerWidth)
         	},
 		}
     }

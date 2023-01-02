@@ -1,16 +1,16 @@
 <template>
-    <div v-if="Object.keys(noteLocal).length" class="note" :class="noteLocal.done ? 'done' : ''">
+    <div v-if="Object.keys(note).length" class="note" :class="note.done ? 'done' : ''">
 
-        <label class="checkContainer">
-            <span class="checkLabel">{{noteLocal.title}}</span>
-            <input type="checkbox" :checked="noteLocal.done ? true : false">
+        <label class="checkContainer" >
+            <span class="checkLabel">{{note.title}}</span>
+            <input type="checkbox" :checked="note.done ? true : false" @change="updateValue()">
             <span class="checkmark"></span>
         </label>
 
         <div>
             <!-- chip -->
-            <span v-if="noteLocal.category" class="chip" :class="noteLocal.category === 'Urgente' ? 'red' : 'yellow'">
-                {{noteLocal.category}}
+            <span v-if="note.category" class="chip" :class="note.category === 'Urgente' ? 'red' : 'yellow'">
+                {{note.category}}
             </span>
             <!-- icon -->
             <div class="dropdown">
@@ -18,10 +18,10 @@
                 <div class="dropdown-content">
                     <i class="fas fa-ellipsis-v topIcon"></i>
                     <ul>
-                        <li @click="editEvent(noteLocal)">
+                        <li @click="editEvent()">
                             <i class="fas fa-circle green"></i><span>Editar</span>
                         </li>
-                        <li @click="delEvent(noteLocal)">
+                        <li @click="delEvent()">
                             <i class="fas fa-circle red"></i><span>Excluir</span>
                         </li>
                     </ul>
@@ -41,20 +41,29 @@
 
         data(){
             return {
-                noteLocal: {}
+                noteLocal: {},
+                id: null
             }
         },
 
+        beforeMount(){
+            this.id = this._uid
+        },
+
         mounted(){            
-            this.noteLocal = {...this.note}
+            // this.noteLocal = {...this.note}
         },
 
         methods: {
-            editEvent(note){
-                this.$emit('edit', note)
+            editEvent(){
+                this.$emit('edit', this.note)
             },
-            delEvent(note){
-                this.$emit('delete', note)
+            delEvent(){
+                this.$emit('delete', this.note)
+            },
+
+            updateValue(){
+                this.$emit('check', this.note)
             }
         }
 
@@ -72,9 +81,13 @@
         &.done
             opacity: 50%
             .checkContainer
-                text-decoration: line-through
-        
+                text-decoration: line-through     
+        > div
+            display: flex
+            flex-wrap: none
         .chip
+            display: flex
+            align-items: center
             height: 20px
             font-weight: 700
             font-size: 11px
@@ -203,6 +216,15 @@
             color: #2693FF
             font-size: 15px
 
-        .listIcon
-            font-size: 8px
+    @media only screen and (max-width: 768px)
+        
+        .note
+            > div
+                min-width: 120px
+        .checkContainer
+            .checkLabel
+                font-size: 12px
+                line-height: 13px
+        
+
 </style>

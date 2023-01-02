@@ -8,51 +8,37 @@ export default new Vuex.Store({
 		users: [],
 		notes: [],
 		user: {}, // Somente os dados do usuário logado, sem as notas.  
-	},
-	getters: {
-		userNotes: state => {
-            const notes = state.notes.filter(el => el.userId === state.user.id)
-            console.log("[S] user notes na store: ", notes)
-            return notes
-        }
-	},
+	},	
 	mutations: {
-		loadUsers(state, users) {
-            console.log("[S] loadUsers: ", JSON.parse(JSON.stringify(users)) )
+		loadUsers(state, users) {            
             state.users = JSON.parse(JSON.stringify(users))
-            // console.log("[S] loadUsers notes: ", state.users[0].notes.length)
         },
         loadUser(state, userData) {
-            console.log("[S] loadUser: ", JSON.parse(JSON.stringify(userData)))
-            // console.log("[S] loadUser user notes: ", state.users[0].notes)
             state.user = JSON.parse(JSON.stringify(userData))
-            // console.log("[S] loadUser notes: ", state.users[0].notes)
         },  
         loadNotes(state, notesData) {
-            console.log("[S] loadNotes: ", JSON.parse(JSON.stringify(notesData)))
             state.notes = JSON.parse(JSON.stringify(notesData))
         },
 
         createUser(state, userData){
-            console.log("[S] createUser: ", userData)
-            state.users.push({...userData})
-            // localStorage.setItem('data', JSON.stringify({users: state.users}) )
+            state.users.push(userData)
+            // Sempre atualiza TODO LocalStorage a cada alteração
+            localStorage.setItem('appData', JSON.stringify([{users: state.users, notes: state.notes}]) ) 
         },
         updateUser(state, userData){
             for(let i = 0; i < state.users.length; i++){
                 if(state.users[i].id === userData.id) {
-                    // console.log("[S] users i ANTES update: ", state.users[i].notes)
                     state.users[i] = {...userData}
-                    // console.log("[S] users i ao update: ", state.users[i].notes)
                     break
                 }
             }
-            // localStorage.setItem('data', JSON.stringify({users: state.users}) )
+            localStorage.setItem('appData', JSON.stringify([{users: state.users, notes: state.notes}]) )
         },
 
         createNote(state, noteData){
-            // noteData.id = newId(users)
             state.notes.push(noteData)
+            localStorage.setItem('appData', JSON.stringify([{users: state.users, notes: state.notes}]) ) 
+
         },
         updateNote(state, noteData){
             for(let i = 0; state.notes.length; i++){
@@ -61,17 +47,19 @@ export default new Vuex.Store({
                     break
                 }
             }
-            // localStorage.setItem('data', JSON.stringify({users: state.users}) ) // Sempre atualiza TODO LocalStorage a cada alteração
+            localStorage.setItem('appData', JSON.stringify([{users: state.users, notes: state.notes}]) ) 
         },
         deleteNote(state, noteId){
             for(let i = 0; i < state.notes.length; i++){
                 if(state.notes[i].id === noteId) {
-                    state.users[i].notes = state.users[i].notes.splice(j, 1)
+                    state.notes.splice(i, 1)
                     break
                 }
-            }
-            // localStorage.setItem('data', JSON.stringify({users: state.users}) ) 
+            }            
+            localStorage.setItem('appData', JSON.stringify([{users: state.users, notes: state.notes}]) )
         },
+	},
+    getters: {
 	},
 	actions: {
 	},

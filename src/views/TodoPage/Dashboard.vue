@@ -8,18 +8,30 @@
                     :class="item.name === selectedCategory ? 'selected' : ''">
                         <i class="fas fa-chevron-right"></i>
                         <span class="catName">{{item.name}}</span>
-                        <span v-if="item.chip" class="catChip" :class="item.chip">
-                            <span v-if="item.chip === 'red'">{{urgentAmount}}</span>
-                            <span v-else>{{importantAmount}}</span>
+                        <span v-if="item.chip && item.chip.amount" class="catChip" :class="item.chip.color">
+                            <span >{{item.chip.amount}}</span>
                         </span>
                     </li>
                 </ul>
-            </div>
-            <div class="catInput">
-                <select>
-                    options
-                </select>
-                <!-- dropdown menu aqui -->
+
+                <div class="catListMobile" :class="catMenuOpen ? 'open' : ''" @click="catMenuOpen = !catMenuOpen">
+                    <div class="header">
+                        <span>{{ this.selectedCategory }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <ul>
+                            <li v-for="(item, index) in categories" :key="index" class="catItem" @click="selectCategory(item.name)"
+                                :class="item.name === selectedCategory ? 'selected' : ''"
+                            >
+                                <i class="fas fa-chevron-right"></i>
+                                <span class="catName">{{item.name}}</span>
+                                
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
         </div>
         <div class="dashMain">
@@ -31,15 +43,17 @@
                     <span v-else>tem <span class="taskAmount">{{notDoneAmount}} tarefas</span> pendentes.</span>
                 </p>
                     
-                <b-input class="search" icon="fas fa-search" v-model="searchInput" />
-                <Note v-for="(note, index) in currentNotes" :key="index" :note="note" class="userNote" 
-                    @edit="getNoteToEdit" @delete="getNoteToDelete"
+                <b-input class="search" icon="fas fa-search" v-model="searchInput" @input="filterNotes()"/>
+                <Note v-for="note  in currentNotes" :key="note.id+'.'+listKey" :note="note" class="userNote" 
+                    @check="toggleNoteStatus" @edit="getNoteToEdit" @delete="getNoteToDelete"
                 />
+                <div class="divBtnNew">
+                    <button class="btn green round btnNew" @click="showEditModal = true">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
             </div>
             
-            <button class="btn green round btnNew">
-                <i class="fas fa-plus"></i>
-            </button>
             <b-modal v-if="showEditModal" width="660px">
                 <div slot="body" class="editNoteModal">
                     <i @click="closeEditModal()" class='modalCloseBtn fas fa-times'></i>
@@ -65,7 +79,14 @@
                                 <span class="label">Importante</span>
                             </div>
                         </div>
-                        <button class="btn green" :disabled="!selectedNote.title">Adicionar</button>
+                        <button v-if="selectedNote.id" class="btn green" :disabled="!selectedNote.title"
+                            @click="saveNote()"
+                        >
+                            Editar
+                        </button>
+                        <button v-else class="btn green" :disabled="!selectedNote.title"
+                            @click="saveNote()"
+                        >Adicionar</button>
                     </div>    
                 </div>
             </b-modal>
@@ -79,7 +100,7 @@
                     <span>Esta ação não poderá ser desfeita.</span>
                     <div>
                         <button class="btn green" @click="closeDelModal()">Cancelar</button>
-                        <button class="btn red">Confirmar</button>
+                        <button class="btn red" @click="deleteNote()">Confirmar</button>
                     </div>
                 </div>
             </b-modal>
@@ -91,6 +112,7 @@
     import BrInput from '../../components/BrInput.vue'
     import Note from '../../components/Note.vue'
     import Modal from '../../components/Modal.vue'
+    
     const noteInitialState = {
         done: false,
         category: '',
@@ -98,41 +120,13 @@
         description: '',
         updatedAt: ''
     }
-    const cNotes = JSON.parse(JSON.stringify([
-            {
-                "id":1,
-                "userId":1,
-                "done":false,
-                "category":"Urgente",
-                "title":"Digitar o código a cada 108 minutos... para sempre.",
-                "description":"O não descumprimento pode levar a um evento de fim do mundo. Não se sabe quando isso começou ou quem começou.",
-                "updatedAt":1672357852248
-            },
-            {
-                "id":2,
-                "userId":1,
-                "done":true,
-                "category":"",
-                "title":"Foo Bar Baz",
-                "description":"Lorem Ipsum",
-                "updatedAt":1672357752248
-            },
-            {
-                "id":3,
-                "userId":1,
-                "done":true,
-                "category":"Importante",
-                "title":"WAKE UP",
-                "description":"Eu estou sonhando ou acordado? este é o sonho ou a realidade?",
-                "updatedAt":1672357772248
-            }
-        ]))
+    
     export default {
         name: 'DashBoard',
         components: {
             'b-input': BrInput,
             Note,
-            'b-modal': Modal
+            'b-modal': Modal,
         },
 
         data(){
@@ -143,11 +137,17 @@
                     },
                     {
                         name: 'Urgentes',
-                        chip: 'red'
+                        chip: {
+                            color: 'red',
+                            amount: 0
+                        }
                     },
                     {
                         name: 'Importantes',
-                        chip: 'yellow',
+                        chip: {
+                            color: 'yellow',
+                            amount: 0
+                        },
                     },
                     {
                         name: 'Outras',
@@ -162,23 +162,18 @@
                 currentNotes: [],
                 selectedCategory: 'Todas',
                 searchInput: '',
-                selectedNote: noteInitialState
+                selectedNote: {...noteInitialState},
+                listKey: 1, // usado pra forçar update na lista de notas
+                catMenuOpen: false
             }
         },
 
         beforeMount(){
-            console.log("[D] ao montar o dash temos: ", JSON.parse(JSON.stringify(this.$store.getters.userNotes)))
-            console.log("[D] ao montar o dash notes: ", this.$store.getters.userNotes)
-            this.notes = cNotes
-            this.currentNotes = cNotes
-            // this.notes = Array.from(this.$store.getters.userNotes)
-            // this.currentNotes = Array.from(this.$store.getters.userNotes)
+            this.getNotes()
         },
         
         computed: {
             urgentAmount(){
-                console.log("[D] Notas:", this.notes.length)
-                console.log("[D] Notas Urgentes: ", this.notes.filter(el => el.category === 'Urgente').length)
                 return this.notes.filter(el => el.category === 'Urgente').length
             },
             importantAmount(){
@@ -192,16 +187,60 @@
             }
         },
 
-        // mete um @change lá depois
-        // watch:{
-        //     searchInput(newValue){
-        //         // faz um filtro numa currentVar
-        //     }
-        // },
-
         methods: {
+            getNotes(){
+                this.notes =  this.$store.state.notes.filter(el => el.userId === this.$store.state.user.id) // armazena todas as tarefas
+                this.countCategory() // Conta quantas tarefas são 'Urgente' e 'Importante'
+                this.filterNotes() // armazena e lida com as tarefas que são mostradas                
+                ++this.listKey
+            },
+
+            countCategory(){
+                let urgentes = 0
+                let importantes = 0
+                this.notes.forEach(el => {
+                    if(el.category === 'Urgente')
+                        ++urgentes
+                    if(el.category === 'Importante')
+                        ++importantes
+                })
+                this.categories[1].chip.amount = urgentes
+                this.categories[2].chip.amount = importantes
+            },
+
+            // ordena a lista de tarefas pela data e, se categoria 'Todas', pela categoria.
+            sortNoteList(){
+                this.currentNotes.sort(this.compareByDate)
+                if(this.selectedCategory === 'Todas')
+                    this.currentNotes.sort(this.compareByCategory)
+            },
+
+            compareByCategory(a, b) {
+                if(a.category === b.category)
+                    return 0
+
+                if (a.category === 'Urgente')
+                    return -1			
+                if (b.category === 'Urgente')
+                    return 1
+
+                if (a.category === 'Importante')
+                    return -1			
+                if (b.category === 'Importante')
+                    return 1
+            },
+
+            compareByDate(a, b) {
+                if ( a.updatedAt < b.updatedAt )
+                    return -1			
+                if ( a.updatedAt > b.updatedAt )
+                    return 1			
+                return 0			
+            },
+
             selectCategory(name){
                 this.selectedCategory = name
+                this.filterNotes()
             },
             updateTasksList(){
                 // baseado no input e na selectedCategory filtra na store
@@ -217,11 +256,11 @@
                 this.showDelModal = true
             },
 
-            delNote(){
-                this.$state.commit('deleteNote', this.selectedNote)
-                this.notes = [...this.$store.state.users[0].notes]
-                // roda o filtro
-                this.showDelModal = true
+            deleteNote(){
+                this.showDelModal = false
+                this.$store.commit('deleteNote', this.selectedNote.id)
+                this.selectedNote = {...noteInitialState}
+                this.getNotes()
             },
             editNote(){                
                 this.$state.commit('updateNote', this.selectedNote)
@@ -230,7 +269,7 @@
                 
             },
             closeEditModal(){
-                this.selectedNote = noteInitialState
+                this.selectedNote = {...noteInitialState}
                 this.showEditModal = false
             },
             
@@ -240,8 +279,74 @@
                 else this.selectedNote.category = name
             },
             closeDelModal(){
-                this.selectedNote = noteInitialState
+                this.selectedNote = {...noteInitialState}
                 this.showDelModal = false
+            },
+
+            // Filtra a lista de notas pela categoria selecionada e pela string digitada no input
+            filterNotes(){
+                this.filterNotesByCategory()
+                this.filterNotesByString()
+                this.sortNoteList()
+            },
+
+            filterNotesByCategory(){
+                switch(this.selectedCategory){
+                    case 'Todas':
+                        this.currentNotes = [...this.notes]
+                        break
+                    case 'Urgentes':
+                        this.currentNotes = this.notes.filter(el => el.category === 'Urgente')
+                        break
+                    case 'Importantes':
+                        this.currentNotes = this.notes.filter(el => el.category === 'Importante')
+                        break
+                    case 'Outras':
+                        this.currentNotes = this.notes.filter(el => el.category === '')
+                        break
+                    case 'Finalizadas':
+                        this.currentNotes = this.notes.filter(el => el.done)
+                        break
+                }
+            },
+
+            filterNotesByString(){
+                if(this.searchInput){
+                    this.currentNotes = this.currentNotes.filter(el => el.title.includes(this.searchInput) ||  el.description.includes(this.searchInput))
+                }
+            },
+
+            toggleNoteStatus(note){
+                note.done = !note.done
+                this.$store.commit('updateNote', note)
+                this.getNotes()
+            },
+
+            saveNote(){
+                this.showEditModal = false
+                if(this.selectedNote.id){ // UPDATE
+                    this.selectedNote.updatedAt = new Date().getTime()
+                    this.$store.commit('updateNote', this.selectedNote)
+                }
+                else { // CREATE
+                    this.selectedNote.id = this.idGenerator(this.notes)
+                    this.selectedNote.userId = this.$store.state.user.id
+                    this.selectedNote.updatedAt = new Date().getTime()
+                    this.$store.commit('createNote', this.selectedNote)                    
+                }
+                this.selectedNote = {...noteInitialState}
+                this.getNotes()
+            },
+
+            
+
+            idGenerator(arrayObject){
+                let biggest = 1
+                arrayObject.forEach(el => {
+                    if(el.id >= biggest)
+                        biggest = el.id+1                    
+                })
+                return biggest
             }
         }
     }
@@ -321,7 +426,7 @@
 
     .dashContent
         width: 635px
-        max-width: 635px        
+        max-width: 635px
         > p
             font-weight: 600
             font-size: 17px
@@ -412,6 +517,7 @@
                     display: flex
                     align-items: center
                     margin-right: 12px
+                    cursor: pointer
                     .outer
                         position: absolute
                         border-radius: 50%
@@ -440,17 +546,80 @@
                 padding-left: 23px
                 padding-right: 23px
 
-    @media only screen and (max-width: 577px)
+    // DROPDOWN BTN
+    .catListMobile
+        display: none
+        width: 100%
+        height: 100%
+        .header
+            display: flex
+            width: 100%
+            padding: 0px 40px
+            justify-content: space-between
+            align-items: center
+            font-weight: 600
+            cursor: pointer
+        &.open .dropdown-content 
+            display: block            
+        .dropdown-content 
+            display: none
+            position: absolute
+            z-index: 1
+            border-radius: 0px
+            box-shadow: 0px 0px 8px 2px rgba(49, 81, 113, 0.1)
+            background-color: #fff
+            width: 100%
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)
+            padding-top: 11px 
+            top: 60px
+            ul 
+                list-style: none
+                padding: 0px
+                .catItem
+                    display: block
+                    cursor: pointer
+                    padding: 8px 0px 8px 40px
+                    font-weight: 600
+                    &:hover
+                        background-color: #2693FF
+                        color: #fff   
+                    i
+                        font-size: 12px
+                        margin-right: 8px
+                    
+            
+                
+
+    @media only screen and (max-width: 1180px)
+        .btnNew{
+            position: unset
+        }
+        .divBtnNew{
+            margin: 20px 0px
+            text-align: end
+        }        
+
+    @media only screen and (max-width: 1023px)
         .dashContainer
             flex-direction: column
+        .dashContent
+            width: 90%
+            min-width: 360px
+            max-width: 90%            
+       
         .dashAside            
             height: 60px
             width: 100%
-            padding-bottom: 0px
+            padding: 0px
+            margin: 0px
+            > div
+                flex: 1
             .category
-                margin-bottom: 5px
+                display: none                
             .catList
                 display: none
-            .catInput
-                display: block
+            .catListMobile
+                display: flex
+                justify-content: space-between
+        
 </style>

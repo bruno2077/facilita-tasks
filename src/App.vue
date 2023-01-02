@@ -21,22 +21,16 @@ export default {
 		// Pega todos os dados no localstorage ou no JSON (dados padrão), e carrega na Store
 		loadData(){
 			let appData = JSON.parse(localStorage.getItem('appData'))
-			// console.log("typeof data LS", typeof appData, appData)
-			// console.log('[App][1st] DATA no LS', appData ? JSON.parse(JSON.stringify(appData)) : 'null')
-			// console.log('[App][1st] DATA notes', appData ? appData.users[0].notes.length : 'null')
+			if(appData && appData.length)
+				appData = appData[0]
 			
 			if(!appData){
 				appData = defaultData[0] // pega do JSON
-				console.log("typeof data defaultData", typeof appData, appData)
-				// localStorage.setItem('data', JSON.stringify(appData))
-				// console.log("typeof data", typeof appData, appData)
 			}
-
-			// const allUsers = JSON.parse(JSON.stringify([...appData.users]))
+			
 			this.$store.commit('loadUsers', appData.users)
 			this.$store.commit('loadUser', this.currentUser(appData.users) )	
 			this.$store.commit('loadNotes', appData.notes)
-			console.log("[App] Dados carregados")
 			this.loading = false		
 		},
 
@@ -47,7 +41,6 @@ export default {
 			if(loggedUsers.length > 1){
 				loggedUsers.sort(this.compareByDate)
 				if(now - Number(loggedUsers[0].lastLogin) <= 3600000){
-					console.log("[App] User logado: ", loggedUsers[0])
 					return loggedUsers[0]
 				}
 			}
