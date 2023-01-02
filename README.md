@@ -1,19 +1,28 @@
 # facilita-tasks
 
-## Project setup
+## Sobre
+
+Este projeto é uma aplicação de gerenciamento de tarefas com persistência dos dados todos no LocalStorage. O projeto já vem com alguns dados (2 usuários e 4 tarefas), estes dados são provenientes do arquivo db.json[db.json](https://link-url-here.org). Para acessar com o usuário padrão é só deixar o formulário de login em branco. A partir do primeiro login os dados passarão a vir do localStorage.
+
+## Instalação do projeto
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Executar no modo de desenvolvimento
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Compilar para o modo de produção
 ```
 npm run build
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Autor
+Desenvolvido por Bruno Borges Gontijo, entre em contato.
+
+[<img src="https://img.shields.io/badge/linkedin-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white" />](https://www.linkedin.com/in/bruno2077/) [<img src="https://img.shields.io/badge/Microsoft_Outlook-0078D4?style=for-the-badge&logo=microsoft-outlook&logoColor=white "/>](mailto:assembleia23@hotmail.com)
+
+## Licença
+MIT © [Bruno Borges Gontijo](https://bruno2077.github.io)
